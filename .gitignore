@@ -1,3 +1,4 @@
 workspace/logs
 workspace/wandb
+workspace/.vscode
 huggingface_cache
