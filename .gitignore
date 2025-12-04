@@ -1,0 +1,3 @@
+workspace/logs
+workspace/wandb
+huggingface_cache
