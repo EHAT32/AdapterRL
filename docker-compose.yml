@@ -24,12 +24,14 @@ services:
       - ./datasets:/workspace/datasets
       - ./checkpoints:/workspace/checkpoints
       - ./outputs:/workspace/outputs
-      - ./huggingface_cache:/root/.cache/huggingface/hub
       - ./minestudio_runs:/workspace/minestudio_runs
       - ./minestudio_db:/workspace/minestudio_db
+      - E:/hf_cache:/hf_cache
     working_dir: /workspace
     environment:
-      - HF_HOME=/root/.cache/huggingface/hub
+      - HF_HOME=/hf_cache
+      - HF_DATASETS_CACHE=/hf_cache/datasets
+      - HF_HUB_CACHE=/hf_cache/hub
       - MINESTUDIO_SAVE_DIR=./workspace/minestudio_runs
       - MINESTUDIO_DATABASE_DIR=./workspace/minestudio_db
     command: sleep infinity
