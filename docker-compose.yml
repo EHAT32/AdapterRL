@@ -32,6 +32,7 @@ services:
       - HF_HOME=/hf_cache
       - HF_DATASETS_CACHE=/hf_cache/datasets
       - HF_HUB_CACHE=/hf_cache/hub
+      - HF_TOKEN=${HF_TOKEN}
       - MINESTUDIO_SAVE_DIR=./workspace/minestudio_runs
       - MINESTUDIO_DATABASE_DIR=./workspace/minestudio_db
     command: sleep infinity
