@@ -3,3 +3,5 @@ workspace/wandb
 workspace/.vscode
 huggingface_cache
 .env
+.vscode-server
+extensions
