@@ -33,6 +33,7 @@ RUN pip install --upgrade pip && \
     pip install MineStudio && \
     pip uninstall pyglet -y && \
     pip install pyglet==1.5.27 && \
+    pip install datasets huggingface_hub && \
     python -m minestudio.simulator.entry -y
 
 CMD ["python", "-m", "minestudio.simulator.entry"]
