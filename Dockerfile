@@ -30,6 +30,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip && \
+    pip install ipywidgets && \
     pip install MineStudio && \
     pip uninstall pyglet -y && \
     pip install pyglet==1.5.27 && \
