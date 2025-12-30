@@ -42,20 +42,29 @@ class Block(nn.Module):
         super().__init__(*args, **kwargs)
         self.txt_norm = nn.LayerNorm(config.proj_dim)
         self.img_norm = nn.LayerNorm(config.proj_dim)
-        self.mha = MHA(config)
+        self.attn = CrossAttention(config)
         self.out_norm = nn.LayerNorm(config.attn_out_dim)
         self.ffn = FFN(config)
         
     def forward(self, text_latents, img_latents):
         out = self.txt_norm(text_latents)
         imgs = self.img_norm(img_latents)
-        out = out + self.mha(out, imgs)
+        out = out + self.attn(out, imgs)
         out = self.out_norm(out)
         return out + self.ffn(out)
-
-class MHA(nn.Module):
+        
+        
+class CrossAttention(nn.Module):
     def __init__(self, config, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        assert config.proj_dim == config.head_dim * config.head_num
+        self.query = nn.Linear(config.proj_dim, config.head_dim, bias=False)
+        self.key = nn.Linear(config.proj_dim, config.head_dim, bias=False)
+        self.value = nn.Linear(config.proj_dim, config.head_dim, bias=False)
+        self.dropout = nn.Dropout(config.attn_dropout)
+        
+    def forward(self, text_latents, img_latents):
+        pass
         
 class FFN(nn.Module):
     def __init__(self, config, *args, **kwargs):
