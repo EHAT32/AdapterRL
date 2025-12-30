@@ -17,6 +17,49 @@ class TextProjector(nn.Module):
         
     def forward(self, x):
         return self.proj(x)
+
+
+class ModalityFusor(nn.Module):
+    def __init__(self, config, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.image_projector = VisionProjector(config)
+        self.text_projector = TextProjector(config)
+        self.encoder = Encoder(config)
+        
+    def forward(self, txt_latents, img_latents):
+        txt_proj = self.text_projector(txt_latents)
+        img_proj = self.image_projector(img_latents)
+        output = self.encoder(txt_proj, img_proj)
+        return output
+
+class Encoder(nn.Module):
+    def __init__(self, config, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.blocks = nn.Sequential(*[Block(config) for _ in range(config.block_num)])
+
+class Block(nn.Module):
+    def __init__(self, config, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.txt_norm = nn.LayerNorm(config.proj_dim)
+        self.img_norm = nn.LayerNorm(config.proj_dim)
+        self.mha = MHA(config)
+        self.out_norm = nn.LayerNorm(config.attn_out_dim)
+        self.ffn = FFN(config)
+        
+    def forward(self, text_latents, img_latents):
+        out = self.txt_norm(text_latents)
+        imgs = self.img_norm(img_latents)
+        out = out + self.mha(out, imgs)
+        out = self.out_norm(out)
+        return out + self.ffn(out)
+
+class MHA(nn.Module):
+    def __init__(self, config, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+class FFN(nn.Module):
+    def __init__(self, config, *args, **kwargs):
+        super().__init__(*args, **kwargs)    
     
 if __name__ == '__main__':
     
