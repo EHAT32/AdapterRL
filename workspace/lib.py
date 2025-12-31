@@ -84,7 +84,7 @@ class CrossAttention(nn.Module):
         
         scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.head_dim) # B, H, T_txt, T
         if attn_mask is not None:
-            scores = scores.masked_fill(attn_mask == 0, float('inf'))
+            scores = scores.masked_fill(attn_mask == 0, float('-inf'))
         attn = torch.softmax(scores, dim=-1)
         attn = self.dropout(attn)
         
