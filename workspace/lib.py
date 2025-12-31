@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import torch.nn as nn
 import torch
+import math
 
 class VisionProjector(nn.Module):
     def __init__(self, config, *args, **kwargs):
@@ -32,10 +33,12 @@ class ModalityFusor(nn.Module):
         output = self.encoder(txt_proj, img_proj)
         return output
 
+
 class Encoder(nn.Module):
     def __init__(self, config, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.blocks = nn.Sequential(*[Block(config) for _ in range(config.block_num)])
+
 
 class Block(nn.Module):
     def __init__(self, config, *args, **kwargs):
@@ -67,7 +70,11 @@ class CrossAttention(nn.Module):
         self.dropout = nn.Dropout(config.attn_dropout)
         
     def forward(self, text_latents, img_latents):
-        pass
+        q = self._split_heads(self.query(text_latents)) # B, H, T_txt(=1), dh
+        k = self._split_heads(self.key(img_latents)) # B, H, T, dh
+        v = self._split_heads(self.value(img_latents)) # B, H, T, dh
+        
+                
         
     def _split_heads(self, x):
         #B, T, d -> B, H, T, dh
@@ -81,6 +88,7 @@ class CrossAttention(nn.Module):
         x = x.transpose(1,2).contiguous().view(B, T, H * dh)
         return x
         
+                
 class FFN(nn.Module):
     def __init__(self, config, *args, **kwargs):
         super().__init__(*args, **kwargs)    
