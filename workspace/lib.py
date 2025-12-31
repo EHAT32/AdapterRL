@@ -52,7 +52,7 @@ class Block(nn.Module):
         self.txt_norm = nn.LayerNorm(config.proj_dim)
         self.img_norm = nn.LayerNorm(config.proj_dim)
         self.attn = CrossAttention(config)
-        self.out_norm = nn.LayerNorm(config.attn_out_dim)
+        self.out_norm = nn.LayerNorm(config.proj_dim)
         self.ffn = FFN(config)
         
     def forward(self, text_latents, img_latents):
@@ -122,9 +122,19 @@ if __name__ == '__main__':
     
     @dataclass
     class Config:
+        #Projectors
         img_latent_dim : int = 2048
         txt_latent_dim : int = 768
         proj_dim : int = 768
+        #Encoder
+        block_num : int = 4
+        #CrossAttention
+        head_num : int = 4
+        head_dim : int = 192
+        attn_dropout : float = 0.1
+        #FFN
+        ffn_hidden_mult : int = 4
+        
         
     cfg = Config()
     
