@@ -63,18 +63,28 @@ class CrossAttention(nn.Module):
         assert config.proj_dim == config.head_dim * config.head_num
         self.head_num = config.head_num
         self.head_dim = config.head_dim
+        
         self.query = nn.Linear(config.proj_dim, config.proj_dim, bias=False)
         self.key = nn.Linear(config.proj_dim, config.proj_dim, bias=False)
         self.value = nn.Linear(config.proj_dim, config.proj_dim, bias=False)
         self.out = nn.Linear(config.proj_dim, config.proj_dim, bias=False)
+        
         self.dropout = nn.Dropout(config.attn_dropout)
         
-    def forward(self, text_latents, img_latents):
+    def forward(self, text_latents, img_latents, attn_mask=None):
         q = self._split_heads(self.query(text_latents)) # B, H, T_txt(=1), dh
         k = self._split_heads(self.key(img_latents)) # B, H, T, dh
         v = self._split_heads(self.value(img_latents)) # B, H, T, dh
         
-                
+        scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.head_dim) # B, H, T_txt, T
+        if attn_mask is not None:
+            scores = scores.masked_fill(attn_mask == 0, float('inf'))
+        attn = torch.softmax(scores, dim=-1)
+        attn = self.dropout(attn)
+        
+        out = torch.matmul(attn, v) #B, H, T_txt(=1), dh
+        out = self._merge_heads(out) #B, T_txt(=1), d   
+        return self.out(out)  
         
     def _split_heads(self, x):
         #B, T, d -> B, H, T, dh
