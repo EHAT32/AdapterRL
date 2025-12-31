@@ -58,13 +58,28 @@ class CrossAttention(nn.Module):
     def __init__(self, config, *args, **kwargs):
         super().__init__(*args, **kwargs)
         assert config.proj_dim == config.head_dim * config.head_num
-        self.query = nn.Linear(config.proj_dim, config.head_dim, bias=False)
-        self.key = nn.Linear(config.proj_dim, config.head_dim, bias=False)
-        self.value = nn.Linear(config.proj_dim, config.head_dim, bias=False)
+        self.head_num = config.head_num
+        self.head_dim = config.head_dim
+        self.query = nn.Linear(config.proj_dim, config.proj_dim, bias=False)
+        self.key = nn.Linear(config.proj_dim, config.proj_dim, bias=False)
+        self.value = nn.Linear(config.proj_dim, config.proj_dim, bias=False)
+        self.out = nn.Linear(config.proj_dim, config.proj_dim, bias=False)
         self.dropout = nn.Dropout(config.attn_dropout)
         
     def forward(self, text_latents, img_latents):
         pass
+        
+    def _split_heads(self, x):
+        #B, T, d -> B, H, T, dh
+        B, T, d = x.shape
+        x = x.view(B, T, self.head_num, self.head_dim)
+        return x.transpose(1,2)
+    
+    def _merge_heads(self, x):
+        #B, H, T, dh -> B, T, d
+        B, H, T, dh = x.shape
+        x = x.transpose(1,2).contiguous().view(B, T, H * dh)
+        return x
         
 class FFN(nn.Module):
     def __init__(self, config, *args, **kwargs):
