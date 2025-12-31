@@ -112,7 +112,7 @@ class FFN(nn.Module):
         self.mlp = nn.Sequential(
             nn.Linear(config.proj_dim, hidden_dim, bias=False),
             nn.GELU(),
-            nn.Linear(hidden_dim, config.proj_dim),
+            nn.Linear(hidden_dim, config.proj_dim, bias=False),
         )
         
     def forward(self, x):
