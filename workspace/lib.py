@@ -102,6 +102,15 @@ class CrossAttention(nn.Module):
 class FFN(nn.Module):
     def __init__(self, config, *args, **kwargs):
         super().__init__(*args, **kwargs)    
+        hidden_dim = config.proj_dim * config.ffn_hidden_mult
+        self.mlp = nn.Sequential(
+            nn.Linear(config.proj_dim, hidden_dim, bias=False),
+            nn.GELU(),
+            nn.Linear(hidden_dim, config.proj_dim),
+        )
+        
+    def forward(self, x):
+        return self.mlp(x)
     
 if __name__ == '__main__':
     
