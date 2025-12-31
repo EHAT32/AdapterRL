@@ -37,8 +37,14 @@ class ModalityFusor(nn.Module):
 class Encoder(nn.Module):
     def __init__(self, config, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.blocks = nn.Sequential(*[Block(config) for _ in range(config.block_num)])
-
+        self.blocks = nn.ModuleList([Block(config) for _ in range(config.block_num)])
+        
+    def forward(self, text_latents, img_latents):
+        out = text_latents
+        for block in self.blocks:
+            out = block(out, img_latents)
+        return out
+        
 
 class Block(nn.Module):
     def __init__(self, config, *args, **kwargs):
