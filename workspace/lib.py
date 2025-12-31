@@ -135,7 +135,6 @@ if __name__ == '__main__':
         #FFN
         ffn_hidden_mult : int = 4
         
-        
     cfg = Config()
     
     proj = VisionProjector(cfg)
@@ -143,9 +142,10 @@ if __name__ == '__main__':
     T = 128
     d = cfg.img_latent_dim
     img_inputs = torch.randn((B, T, d))
-    img_projection = proj(img_inputs)
-    print(img_projection.shape)
     txt_inputs = torch.randn((B, 1, cfg.txt_latent_dim))
-    txt_proj = TextProjector(cfg)
-    txt_projection = txt_proj(txt_inputs)
-    print(txt_projection.shape)
+    
+    fusor = ModalityFusor(cfg)
+    
+    latents = fusor(txt_inputs, img_inputs)
+    
+    print(latents.shape)
